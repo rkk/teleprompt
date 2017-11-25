@@ -54,6 +54,7 @@ func getGitBranchName() string {
 		output []byte
 		err    error
 		cmd    string
+		name   string
 	)
 
 	gitDir, err := os.Getwd()
@@ -70,7 +71,14 @@ func getGitBranchName() string {
 	if output, err = exec.Command(cmd, args...).Output(); err != nil {
 		return ""
 	}
-	return strings.TrimSpace(string(output))
+	// Add status; postfix "!" if files changed or added.
+	name = strings.TrimSpace(string(output))
+
+	statusArgs := []string{"ls-files", "-mo"}
+	if output, err = exec.Command(cmd, statusArgs...).Output(); err == nil {
+		name = name + "!"
+	}
+	return name
 
 }
 
