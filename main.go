@@ -37,14 +37,16 @@ func getPwd() string {
 		return ""
 	}
 
-	if utf8.RuneCountInString(pwd) > MaxWordLen {
-		pwd = filepath.Base(pwd)
-	}
+	if os.Getenv("TELEPROMPT_DISABLE_WORD_LEN") == "" {
+		if utf8.RuneCountInString(pwd) > MaxWordLen {
+			pwd = filepath.Base(pwd)
+		}
 
-	if utf8.RuneCountInString(pwd) > MaxWordLen {
-		return fmt.Sprintf(
-			"%s",
-			shorten(pwd, 10, true))
+		if utf8.RuneCountInString(pwd) > MaxWordLen {
+			return fmt.Sprintf(
+				"%s",
+				shorten(pwd, 10, true))
+		}
 	}
 	return pwd
 }
