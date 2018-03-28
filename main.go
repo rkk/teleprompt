@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 )
@@ -26,9 +27,13 @@ func shorten(s string, count int, fromStart bool) string {
 		string(runes[len(runes)-count:len(runes)]))
 }
 
-func getMarker() string {
-	// Highly opinionated shell marker: two colons in green.
-	return "\033[0;32m::\033[0m"
+func getMarker(exitCode int) string {
+	// Highly opinionated shell marker: two colons in green if exitCode is zero,
+	// otherwise to colons in red.
+	if exitCode == 0 {
+		return "\033[0;32m::\033[0m"
+	}
+	return "\033[0;7m::\033[0m"
 }
 
 func getPwd() string {
@@ -85,10 +90,16 @@ func getGitBranchName() string {
 }
 
 // BuildPrompt assembles the prompt contents.
-func BuildPrompt() string {
-	return fmt.Sprintf("%s %s %s# ", getMarker(), getGitBranchName(), getPwd())
+func BuildPrompt(exitCode int) string {
+	return fmt.Sprintf("%s %s %s# ", getMarker(exitCode), getGitBranchName(), getPwd())
 }
 
 func main() {
-	fmt.Printf("%s", BuildPrompt())
+	exitCode := 0
+	if len(os.Args) > 1 {
+		if i, err := strconv.Atoi(os.Args[1]); err == nil {
+			exitCode = i
+		}
+	}
+	fmt.Printf("%s", BuildPrompt(exitCode))
 }
