@@ -13,6 +13,10 @@ import (
 const (
 	// MaxWordLen specifies the maximum word length in sub-parts.
 	MaxWordLen = 20
+	// ShellMarker provides a visual clue of a new shell line.
+	ShellMarker = "::"
+	// GitDiffMarker signals Git diff in the current repository.
+	GitDiffMarker = "!"
 )
 
 func shorten(s string, count int, fromStart bool) string {
@@ -31,9 +35,9 @@ func getMarker(exitCode int) string {
 	// Highly opinionated shell marker: two colons in green if exitCode is zero,
 	// otherwise to colons in red.
 	if exitCode == 0 {
-		return "\033[0;32m::\033[0m"
+		return fmt.Sprintf("\033[0;32m%s\033[0m", ShellMarker)
 	}
-	return "\033[0;7m::\033[0m"
+	return fmt.Sprintf("\033[0;7m%s\033[0m", ShellMarker)
 }
 
 func getPwd() string {
@@ -83,7 +87,7 @@ func getGitBranchName() string {
 
 	statusArgs := []string{"ls-files", "-mo"}
 	if output, err = exec.Command(cmd, statusArgs...).Output(); err == nil {
-		name = name + "!"
+		name = name + GitDiffMarker
 	}
 	return name
 
