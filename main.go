@@ -85,7 +85,7 @@ func getGitBranchName() string {
 	// Add status; postfix "!" if files changed or added.
 	name = strings.TrimSpace(string(output))
 
-	statusArgs := []string{"ls-files", "-mo"}
+	statusArgs := []string{"ls-files", "-m"}
 	if output, err = exec.Command(cmd, statusArgs...).Output(); err == nil {
 		name = name + GitDiffMarker
 	}
