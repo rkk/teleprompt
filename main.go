@@ -11,9 +11,9 @@ const (
 	postfix = "# "
 )
 
-// WorkingDirectory provides the relative name of the working directory, with
-// a abbreviation of the home directory to "~" if the working directory
-// is the home directory.
+// WorkingDirectory provides the relative name of the working directory,
+// and abbreviating the home directory to an empty string if the working
+// directory is the home directory.
 func WorkingDirectory() string {
 	var dir string
 	var parts []string
@@ -24,7 +24,7 @@ func WorkingDirectory() string {
 	}
 
 	if cwd == home {
-		return "~"
+		return ""
 	}
 
 	if cwd == "/" {
