@@ -36,7 +36,7 @@ func WorkingDirectoryStatus() string {
 	}
 
 	if cwd == home {
-		return "~"
+		return ""
 	}
 
 	if cwd == "/" {
