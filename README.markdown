@@ -1,7 +1,13 @@
 # Teleprompt - remote assistance for your shell prompt
 
 # Installation
-Place the `teleprompt` binary somewhere in `$PATH`.
+Either place the `teleprompt` binary somewhere in `$PATH`, or use the Go
+tools to install,
+
+    # go get -u github.com/rkk/teleprompt
+
+This requires the $GOPATH/bin to be present in $PATH.
+
 
 # Usage
 For Bourne-compatible shells, activate Teleprompt in the PS1 variable like this,
