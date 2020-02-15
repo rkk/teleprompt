@@ -13,6 +13,12 @@ const (
 	Prefix = ":: "
 	// Postfix is the last marker of the prompt, just before the user input area.
 	Postfix = "# "
+	// GitMarker marks a dirty Git state.
+	GitMarker = "(x)"
+	// ExitMarker marks a non-zero exit code.
+	ExitMarker = "(!)"
+	// ApplicationVersion is the version of this application
+	ApplicationVersion = "0.0.2"
 )
 
 // Runtime models the runtime configuration.
@@ -23,19 +29,14 @@ type Runtime struct {
 	ExitCode int
 }
 
-// WorkingDirectoryStatus provides the relative name of the working directory, with
-// a abbreviation of the home directory to "~" if the working directory
-// is the home directory.
+// WorkingDirectoryStatus provides the relative name of the working directory.
 func WorkingDirectoryStatus() string {
 	var dir string
 	var parts []string
 	home := os.Getenv("HOME")
 	cwd, err := os.Getwd()
-	if err != nil {
-		return ""
-	}
 
-	if cwd == home {
+	if err != nil || cwd == home {
 		return ""
 	}
 
@@ -56,7 +57,7 @@ func GitStatus(r Runtime) string {
 	s := ""
 	changes := len(strings.Split(execute("git status -s"), "\n"))
 	if changes >= 1 {
-		s = "(x)"
+		s = GitMarker
 	}
 
 	return s
@@ -66,7 +67,7 @@ func GitStatus(r Runtime) string {
 func ExitStatus(r Runtime) string {
 	s := ""
 	if r.ExitCode > 0 {
-		s = "(!)"
+		s = ExitMarker
 	}
 
 	return s
@@ -103,17 +104,42 @@ func execute(cmd string) string {
 	return string(output)
 }
 
+func showHelp() string {
+	return `usage: teleprompt OPTIONS
+
+OPTIONS:
+-g     Include Git status
+-h     Display this help text and exit
+-p     Include directory path element
+-v     Display application version and exit
+-V     Run in verbose mode, displaying more information
+-x ARG Include exit code, where ARG is usually noted by the shell variable $?
+`
+}
+
 func main() {
 	g := flag.Bool("g", false, "Show Git status")
-	p := flag.Bool("p", true, "Show directory path element")
-	v := flag.Bool("v", false, "Verbose mode")
+	help := flag.Bool("h", false, "Show help instructions")
+	p := flag.Bool("p", false, "Show directory path element")
+	verbose := flag.Bool("V", false, "Verbose mode")
+	version := flag.Bool("v", false, "Show application version")
 	x := flag.Int("x", 0, "Exit code, usually noted by the shell variable $?")
 	flag.Parse()
+
+	if *version {
+		fmt.Println(ApplicationVersion)
+		os.Exit(0)
+	}
+
+	if *help || (!*g && !*p && *x == 0) {
+		fmt.Println(showHelp())
+		os.Exit(0)
+	}
 
 	r := Runtime{
 		Git:      *g,
 		Path:     *p,
-		Verbose:  *v,
+		Verbose:  *verbose,
 		ExitCode: *x,
 	}
 	fmt.Print(BuildPrompt(&r))
